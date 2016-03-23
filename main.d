@@ -115,6 +115,8 @@ dstring normalize(dstring s)
         s = s[1..$-1];
     }
 
+	s = s.replace("\\n", "\n");
+
     return s.strip();
 }
 
@@ -190,6 +192,7 @@ dstring MapAttribute(dstring attr)
 	if (attr == "color"d) return "Stroke"d;
 	if (attr == "fillcolor"d) return "Background"d;
 	if (attr == "fontcolor"d) return "Foreground"d;
+	if (attr == "label"d) return "Label"d;
 	return attr;
 }
 
@@ -221,7 +224,8 @@ string GenerateDgml(Graph g)
         xe.attr["Source"] = to!string(e.left.id);
         foreach(dstring k, dstring v; e.attr)
         {
-            xe.attr[to!string(MapAttribute(k))] = to!string(v);
+			auto attrV = to!dstring(v).normalize();
+            xe.attr[to!string(MapAttribute(k))] = to!string(attrV);
         }
         xEdges ~= new Element(xe);
     }
@@ -237,7 +241,7 @@ int main(string[] args)
     getopt(args, "help|h", &showHelp, "output|o", &outfile);
     if (showHelp)
     {
-        writeln("dot2dgml 1.0: convert dot files to dgml. \n"
+        writeln("dot2dgml 1.1: convert dot files to dgml. \n"
                 "the dgml files can be viewed by Microsoft Visual Studio. \n\n"
                 "Usage: dot2dgml [dot file] [-o|--output dgml file]\n"
                 "\n"
